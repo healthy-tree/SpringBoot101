@@ -1,0 +1,148 @@
+# ==================== H2 内存数据库测试环境配置 ====================
+# 此配置用于开发和测试环境，使用 H2 内存数据库
+# 无需安装 MySQL 或 MongoDB，开箱即用
+# 使用方法: mvn spring-boot:run -Dspring.profiles.active=h2
+
+spring:
+  application:
+    name: spring-boot-101-statemachine-test
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# ==================== 日志配置（测试） ====================
+logging:
+  level:
+    root: INFO
+    com.example.springboot: DEBUG
+    org.springframework: INFO
+    org.springframework.data: DEBUG
+    org.hibernate: INFO
+    org.hibernate.SQL: DEBUG
+    org.h2.server: INFO
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+  file:
+    name: logs/spring-boot-101-test.log
+
+# ==================== H2 内存数据库配置 ====================
+spring:
+  datasource:
+    # H2 内存数据库连接
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_UPPER=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
+
+    # H2 连接池配置
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  # ==================== H2 控制台配置 ====================
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+        trace: false
+
+# ==================== JPA Hibernate 测试配置 ====================
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      # 自动创建和删除表用于测试
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 10
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+        dialect: org.hibernate.dialect.H2Dialect
+        enable_lazy_load_no_trans: true
+    open-in-view: true
+
+# ==================== Spring Statemachine 配置 ====================
+  statemachine:
+    initial-state: PENDING_PAYMENT
+
+# ==================== Jackson JSON 配置 ====================
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+
+# ==================== 数据源配置 ====================
+datasource:
+  type: mysql
+  primary: mysql
+  enable-migration: false
+
+# ==================== Actuator 监控配置 ====================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    enable:
+      jvm: true
+      process: true
+
+# ==================== 服务器配置（测试） ====================
+server:
+  tomcat:
+    threads:
+      max: 50
+      min-spare: 5
+    accept-count: 20
+    connection-timeout: 20000ms
+
+# ==================== 测试相关说明 ====================
+#
+# 优势：
+# 1. 无需安装数据库，开箱即用
+# 2. 快速启动，适合快速开发迭代
+# 3. 每次启动自动创建/销毁表，保证测试隔离
+# 4. 提供 H2 Web 控制台，便于查看数据
+# 5. 内存数据库速度快，适合单元测试
+#
+# H2 Web 控制台访问：
+# http://localhost:8080/h2-console
+# JDBC URL: jdbc:h2:mem:testdb
+# User Name: sa
+# Password: (留空)
+#
+# 注意事项：
+# 1. H2 数据库数据只在内存中，应用关闭后数据丢失
+# 2. 不适合数据量大的测试
+# 3. 某些 MySQL 特定功能可能不支持
+# 4. 不能用于性能测试
+#
+# 常用命令：
+# - 启动应用: mvn spring-boot:run -Dspring.profiles.active=h2
+# - 运行测试: mvn test
+# - 打包应用: mvn clean package
+#
+# 默认数据库信息：
+# - 数据库: testdb (内存数据库)
+# - 用户名: sa
+# - 密码: (无)
+# - 端口: 8080

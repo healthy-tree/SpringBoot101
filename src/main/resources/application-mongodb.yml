@@ -1,0 +1,112 @@
+# ==================== MongoDB 专用环境配置 ====================
+# 此配置用于开发或过渡环境，仅使用 MongoDB
+# 使用方法: mvn spring-boot:run -Dspring.profiles.active=mongodb
+
+spring:
+  application:
+    name: spring-boot-101-statemachine
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# ==================== 日志配置 ====================
+logging:
+  level:
+    root: INFO
+    com.example.springboot: DEBUG
+    org.springframework: INFO
+    org.springframework.data.mongodb: DEBUG
+    com.mongodb: WARN
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+  file:
+    name: logs/spring-boot-101.log
+
+# ==================== MongoDB 配置 ====================
+spring:
+  data:
+    mongodb:
+      # MongoDB 连接字符串
+      uri: mongodb://localhost:27017/spring_boot_101
+      database: spring_boot_101
+
+      # 自动创建索引
+      auto-index-creation: true
+
+      # 认证数据库
+      authentication-database: admin
+
+      # 连接池配置
+      connection-string: mongodb://localhost:27017/spring_boot_101
+
+  # 禁用 JPA 和 MySQL 配置
+  jpa:
+    enabled: false
+
+  datasource:
+    # 用占位符禁用 MySQL
+    url: jdbc:h2:mem:disabled
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
+
+# ==================== MongoDB 驱动配置 ====================
+mongodb:
+  # 副本集配置（可选）
+  # replica-set: rs0
+
+  # 连接池配置
+  connection:
+    min-pool-size: 5
+    max-pool-size: 20
+    connection-timeout-ms: 10000
+    socket-timeout-ms: 30000
+
+# ==================== Jackson JSON 配置 ====================
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+    deserialization:
+      accept-single-value-as-array: true
+
+# ==================== 数据源配置 ====================
+datasource:
+  type: mongodb
+  primary: mongodb
+  enable-migration: false
+
+# ==================== Actuator 监控配置 ====================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    enable:
+      jvm: true
+      process: true
+
+# ==================== 服务器配置 ====================
+server:
+  tomcat:
+    threads:
+      max: 100
+      min-spare: 5
+    accept-count: 50
+    connection-timeout: 20000ms
+
+# ==================== 迁移说明 ====================
+# 此配置用于原始 MongoDB 环境
+# 若要启用双数据源迁移模式，请使用 application.yml 并设置:
+#   datasource.enable-migration: true
+# 然后同时启用 MongoDB 和 MySQL 配置
